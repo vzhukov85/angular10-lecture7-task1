@@ -11,12 +11,19 @@ import { SubjectItemComponent } from './subject-item/subject-item.component';
 import { SubjectTableComponent } from './subject-table/subject-table.component';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import {MatDividerModule} from '@angular/material/divider';
-import {MatPaginatorModule} from '@angular/material/paginator';
-import {MatCardModule} from '@angular/material/card';
+import { MatDividerModule } from '@angular/material/divider';
+import { MatPaginatorModule } from '@angular/material/paginator';
+import { MatCardModule } from '@angular/material/card';
+import { DateValidatorDirective } from './date-validator.directive';
+import { MinValidatorDirective } from './min-validator.directive';
 
 @NgModule({
-  declarations: [SubjectTableComponent, SubjectItemComponent],
+  declarations: [
+    SubjectTableComponent,
+    SubjectItemComponent,
+    DateValidatorDirective,
+    MinValidatorDirective,
+  ],
   imports: [
     CommonModule,
     FormsModule,
@@ -31,8 +38,13 @@ import {MatCardModule} from '@angular/material/card';
     MatIconModule,
     MatDividerModule,
     MatPaginatorModule,
-    MatCardModule
+    MatCardModule,
   ],
-  exports: [SubjectTableComponent, SubjectItemComponent],
+  exports: [
+    SubjectTableComponent,
+    SubjectItemComponent,
+    DateValidatorDirective,
+    MinValidatorDirective,
+  ],
 })
 export class SubjectsModule {}

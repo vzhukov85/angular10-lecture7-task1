@@ -1,25 +1,55 @@
 <mat-card>
+<form [formGroup]="subjectForm" #formDirective="ngForm" (ngSubmit)="addElement()">
 <mat-grid-list cols="4" rowHeight="80px">
   <mat-grid-tile colspan="1" rowspan="1">
     <mat-form-field appearancece="fill">
       <mat-label>Номер</mat-label>
-      <input matInput type="number" maxlength="3" [(ngModel)]="position" min="1" (change)="checkExist()"/>
+      <input matInput 
+      type="number"
+      maxlength="3" 
+      formControlName="position" 
+      [min-value] = 1
+      (change)="checkExist()"
+      required/>
+      <mat-error *ngIf="subjectForm.get('position').hasError('required')">
+        Поле Номер <strong>обязательно</strong> для заполнения
+      </mat-error>
+      <mat-error *ngIf="subjectForm.get('position').hasError('minValue')">
+        Поле Номер не может быть меньше 
+        <strong>{{subjectForm.get('position').getError('minValue')}}</strong>. 
+        Введено значение <strong>{{subjectForm.get('position').getError('factValue')}}</strong>
+      </mat-error>
     </mat-form-field>
   </mat-grid-tile>
 
   <mat-grid-tile colspan="1" rowspan="1">
     <mat-form-field appearance="fill">
       <mat-label>Дата урока</mat-label>
-      <input matInput [matDatepicker]="picker" [(ngModel)]="dateSubject" readonly>
+      <input 
+      matInput 
+      [matDatepicker]="picker" 
+      formControlName="dateSubject" 
+      readonly
+      required
+      date-validator>
       <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
       <mat-datepicker #picker></mat-datepicker>
+      <mat-error *ngIf="subjectForm.get('dateSubject').hasError('required')">
+        Поле Дата урока <strong>обязательно</strong> для заполнения
+      </mat-error>
+      <mat-error *ngIf="subjectForm.get('dateSubject').hasError('dateBeforeNow')">
+        Не может быть в прошлом
+      </mat-error>
     </mat-form-field>
   </mat-grid-tile>
 
   <mat-grid-tile colspan="1" rowspan="1">
     <mat-form-field appearancece="fill" style="width: 100%">
       <mat-label>Тема урока</mat-label>
-      <input matInput  type="text"  [(ngModel)]="topic"/>
+      <input matInput  type="text"  formControlName="topic" required/>
+      <mat-error *ngIf="subjectForm.get('topic').hasError('required')">
+        Поле Тема урока <strong>обязательно</strong> для заполнения
+      </mat-error>
     </mat-form-field>
   </mat-grid-tile>
 
@@ -30,7 +60,10 @@
   <mat-grid-tile colspan="3" rowspan="1">
     <mat-form-field appearancece="fill">
       <mat-label>Домашнее задание</mat-label>
-      <textarea matInput [(ngModel)]="homework" ></textarea>
+      <textarea matInput formControlName="homework" required></textarea>
+      <mat-error *ngIf="subjectForm.get('homework').hasError('required')">
+        Поле Домашнее задание <strong>обязательно</strong> для заполнения
+      </mat-error>
     </mat-form-field>
   </mat-grid-tile>
 
@@ -41,7 +74,7 @@
   <mat-grid-tile colspan="3" rowspan="1">
     <mat-form-field appearancece="fill">
       <mat-label>Примечание</mat-label>
-      <textarea matInput  [(ngModel)]="notice" ></textarea>  
+      <textarea matInput  formControlName="notice"></textarea>  
     </mat-form-field>
   </mat-grid-tile>
 
@@ -52,7 +85,8 @@
 </mat-grid-list>
 
 <div class="button-block">
-  <button mat-raised-button (click)="addElement()" [innerText]="buttonText"></button>
-  <button mat-raised-button (click)="clean()">Очистить</button>
+  <button mat-raised-button type="submit" [innerText]="buttonText"></button>
+  <button mat-raised-button type="button" (click)="clean()">Очистить</button>
 </div>
+</form>
 </mat-card>

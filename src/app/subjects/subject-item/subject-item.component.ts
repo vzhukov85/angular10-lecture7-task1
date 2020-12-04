@@ -1,8 +1,11 @@
-import { Component, Input, OnInit } from '@angular/core';
-import { FormControl, Validators } from '@angular/forms';
+import { Component, Input, OnInit, ViewChild } from '@angular/core';
+import {
+  FormBuilder,
+  FormGroup, Validators, FormGroupDirective, NgForm
+} from '@angular/forms';
 import { DateAdapter } from '@angular/material/core';
-import { SubjectTableComponent } from '../subject-table/subject-table.component';
 import { SubjectElement, SubjectService } from '../../services/subject.service';
+import { SubjectTableComponent } from '../subject-table/subject-table.component';
 
 @Component({
   selector: 'subject-item',
@@ -10,44 +13,56 @@ import { SubjectElement, SubjectService } from '../../services/subject.service';
   styleUrls: ['./subject-item.component.css'],
 })
 export class SubjectItemComponent implements OnInit {
-  @Input() position;
-  @Input() dateSubject;
-  @Input() topic;
-  @Input() homework;
-  @Input() notice;
+  subjectForm: FormGroup = this.formBuilder.group({
+    position: [,  { updateOn: 'change' }],
+    dateSubject: [, { updateOn: 'change' }],
+    topic: [, { updateOn: 'change' }],
+    homework: [, { updateOn: 'change' }],
+    notice: [, { updateOn: 'change' }],
+  });
 
   @Input() parent: SubjectTableComponent;
+
+  @ViewChild('formDirective') private formDirective: NgForm;
 
   elementExist = false;
   buttonText = '';
 
   constructor(
     private dateAdapter: DateAdapter<any>,
-    private subjectSrv: SubjectService
+    private subjectSrv: SubjectService,
+    private formBuilder: FormBuilder
   ) {
     this.dateAdapter.setLocale('ru');
     this.updateButtonText();
+    console.log(this.subjectForm);
   }
 
   addElement(): void {
+    if (!this.subjectForm.valid) {
+      console.log(this.subjectForm);
+      return;
+    }
     const element: SubjectElement = {
-      position: this.position,
-      dateSubject: this.dateSubject,
-      topic: this.topic,
-      homework: this.homework,
-      notice: this.notice,
+      position: this.subjectForm.get('position').value,
+      dateSubject: this.subjectForm.get('dateSubject').value,
+      topic: this.subjectForm.get('topic').value,
+      homework: this.subjectForm.get('homework').value,
+      notice: this.subjectForm.get('notice').value,
     };
-    console.log('add element', element);
     this.subjectSrv.addElement(element);
     this.parent.reloadSubjects();
-    this.elementExist = true;
+    this.elementExist = false;
     this.updateButtonText();
+
+    this.subjectForm.reset();
+    this.formDirective.resetForm();
   }
 
   checkExist(): void {
     this.elementExist = false;
-    this.subjectSrv.subjects.forEach(item => {
-      if (item.position === this.position) {
+    this.subjectSrv.subjects.forEach((item) => {
+      if (item.position === this.subjectForm.get('position').value) {
         this.elementExist = true;
         return;
       }
@@ -64,24 +79,22 @@ export class SubjectItemComponent implements OnInit {
   }
 
   selectElement(element: SubjectElement): void {
-    this.position = element.position;
-    this.dateSubject = element.dateSubject;
-    this.topic = element.topic;
-    this.homework = element.homework;
-    this.notice = element.notice;
+    // tslint:disable-next-line: forin
+    for (const key in this.subjectForm.controls) {
+      this.subjectForm.get(key).setValue(element[key]);
+    }
     this.elementExist = true;
     this.updateButtonText();
   }
 
   clean(): void {
-    this.position = null;
-    this.dateSubject = null;
-    this.topic = null;
-    this.homework = null;
-    this.notice = null;
+    this.subjectForm.reset();
+    this.formDirective.resetForm();
+
     this.elementExist = false;
     this.updateButtonText();
   }
+
 
   ngOnInit(): void {}
 }
