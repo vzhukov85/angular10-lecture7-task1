@@ -1,0 +1,11 @@
+th.mat-header-cell,
+td.mat-cell {
+  text-align: center;
+  border: 1px solid #ccc;
+  padding: 0 !important;
+}
+
+.lesson {
+  writing-mode: vertical-lr;
+  text-orientation: mixed;
+}

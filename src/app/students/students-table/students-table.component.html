@@ -1,0 +1,250 @@
+<table mat-table [dataSource]="studentsGrades" class="mat-elevation-z8">
+
+    <ng-container matColumnDef="lesson-group">
+      <th mat-header-cell *matHeaderCellDef [attr.colspan]="subjectColumnTitle.length"> 
+        Лекции
+      </th>
+    </ng-container>
+
+    <ng-container matColumnDef="homework-group">
+      <th mat-header-cell *matHeaderCellDef [attr.colspan]="subjectColumnTitle.length"> 
+        Самостоятельная работа
+      </th>
+    </ng-container>
+  
+    <ng-container matColumnDef="fio">
+      <th mat-header-cell *matHeaderCellDef [ngStyle]="{'display': 'none'}"></th>
+      <td mat-cell *matCellDef="let element; let i = index">
+        <input matInput  
+        type="text" 
+        [(ngModel)] = "element.fio" 
+        style="width: 200px;" 
+        (change)="changeValue(element, i)"> 
+      </td>
+    </ng-container>
+
+    <ng-container *ngFor="let lesson of lessonColumnDefs; let colIndex = index" matColumnDef="{{lesson}}">
+      <th mat-header-cell *matHeaderCellDef><div class="lesson">{{subjectColumnTitle[colIndex]}}</div></th>
+      <td mat-cell *matCellDef="let element; let i = index">
+        <input matInput  
+        type="number" 
+        [(ngModel)] = "element.lectureGrades[colIndex]" 
+        min="0" 
+        max="1" 
+        (change)="recalcGrades(element, i)"> 
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="absence-rate">
+      <th mat-header-cell *matHeaderCellDef>Посещяемость</th>
+    </ng-container>
+
+    <ng-container *ngFor="let homework of homeworkColumnDefs; let colIndex = index" matColumnDef="{{homework}}">
+      <th mat-header-cell *matHeaderCellDef><div class="lesson">{{subjectColumnTitle[colIndex]}}</div></th>
+      <td mat-cell *matCellDef="let element; let i = index">
+        <input matInput  
+        type="number" 
+        [(ngModel)] = "element.homeworkGrades[colIndex]" 
+        min="0" 
+        max="6" 
+        (change)="recalcGrades(element, i)"> 
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="fio-group">
+      <th mat-header-cell *matHeaderCellDef [attr.rowSpan]="4" style="width: 200px;"> ФИО </th>
+    </ng-container>
+
+    <ng-container matColumnDef="absence-rate-start-date">
+      <th mat-header-cell *matHeaderCellDef> {{ this.lessonStartDate | date: 'dd.MM.yyyy' }} </th>
+    </ng-container>
+
+    <ng-container matColumnDef="absence-rate-end-date">
+      <th mat-header-cell *matHeaderCellDef> {{ this.lessonEndDate | date: 'dd.MM.yyyy' }} </th>
+    </ng-container>
+
+    <ng-container matColumnDef="absence-rate-info">
+      <th mat-header-cell *matHeaderCellDef> Не менее 6-и </th>
+      <td mat-cell *matCellDef="let element">
+        {{ element.absenceRate }}
+      </td>
+    </ng-container>
+
+    <ng-container *ngFor="let lesson of lessonDates; let colIndex = index" matColumnDef="{{'start-' + lesson.colDef}}">
+      <th mat-header-cell *matHeaderCellDef [attr.colSpan]="lesson.count">{{lesson.date | date: 'dd.MM.yyyy' }}</th>
+    </ng-container>
+
+    <ng-container *ngFor="let lesson of lessonDates; let colIndex = index" matColumnDef="{{'end-' + lesson.colDef}}">
+      <th mat-header-cell *matHeaderCellDef [attr.colSpan]="lesson.count">{{lesson.date | date: 'dd.MM.yyyy' }}</th>
+    </ng-container>
+
+    <ng-container *ngFor="let homework of startHomeworkDates; let colIndex = index" matColumnDef="{{homework.colDef}}">
+      <th mat-header-cell *matHeaderCellDef [attr.colSpan]="homework.count">{{homework.date | date: 'dd.MM.yyyy' }}</th>
+    </ng-container>
+
+    <ng-container *ngFor="let homework of endHomeworkDates; let colIndex = index" matColumnDef="{{homework.colDef}}">
+      <th mat-header-cell *matHeaderCellDef [attr.colSpan]="homework.count">{{homework.date | date: 'dd.MM.yyyy' }}</th>
+    </ng-container>
+
+    <ng-container matColumnDef="total-count-homework">
+      <th mat-header-cell *matHeaderCellDef [ngStyle]="{'display': 'none'}"> </th>
+      <td mat-cell *matCellDef="let element">
+        {{ element.totalCountHomeworks  }}
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="total-count-homework-group">
+      <th mat-header-cell *matHeaderCellDef [attr.rowSpan]="4"> Количество выполненных с/р </th>
+    </ng-container>
+
+    <ng-container matColumnDef="total-grades">
+      <th mat-header-cell *matHeaderCellDef [ngStyle]="{'display': 'none'}"></th>
+      <td mat-cell *matCellDef="let element">
+        {{ element.totalGrades  }}
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="total-grades-group">
+      <th mat-header-cell *matHeaderCellDef [attr.rowSpan]="4"> Количество набранный балов за сам. работу </th>
+      <td mat-cell *matCellDef="let element">
+        {{ element.totalGrades  }}
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="interview-title">
+      <th mat-header-cell *matHeaderCellDef>Собеседование</th>
+    </ng-container>
+
+    <ng-container matColumnDef="interview-min-val">
+      <th mat-header-cell *matHeaderCellDef>мин 60%</th>
+      <td mat-cell *matCellDef="let element; let i = index">
+        <input matInput  
+        type="number" 
+        [(ngModel)] = "element.interview" 
+        min="0" 
+        max="100" 
+        (change)="recalcGrades(element, i)"> 
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="interview-start-date">
+      <th mat-header-cell *matHeaderCellDef>{{ this.interviewStartDate | date: 'dd.MM.yyyy' }}</th>
+    </ng-container>
+
+    <ng-container matColumnDef="interview-end-date">
+      <th mat-header-cell *matHeaderCellDef>{{ this.interviewEndDate | date: 'dd.MM.yyyy' }}</th>
+    </ng-container>
+
+    <ng-container matColumnDef="interview-total-grades-group">
+      <th mat-header-cell *matHeaderCellDef [attr.rowSpan]="4"> Сумма набранных баллов </th>
+    </ng-container>
+
+    <ng-container matColumnDef="interview-total-grades">
+      <th mat-header-cell *matHeaderCellDef [ngStyle]="{'display': 'none'}"> Сумма набранных баллов </th>
+      <td mat-cell *matCellDef="let element">
+        {{ element.interviewTotalGrades  }}
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="max-total-grades-group">
+      <th mat-header-cell *matHeaderCellDef [attr.rowSpan]="4"> Максимальная сумма баллов </th>
+    </ng-container>
+
+    <ng-container matColumnDef="max-total-grades">
+      <th mat-header-cell *matHeaderCellDef [ngStyle]="{'display': 'none'}"></th>
+      <td mat-cell *matCellDef="let element">
+        100
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="percent-lecture-title">
+      <th mat-header-cell *matHeaderCellDef [attr.rowSpan]="3"> Теория </th>
+    </ng-container>
+
+    <ng-container matColumnDef="percent-lecture-min">
+      <th mat-header-cell *matHeaderCellDef>мин. 60%</th>
+    </ng-container>
+
+    <ng-container matColumnDef="percent-lecture">
+      <th mat-header-cell *matHeaderCellDef [ngStyle]="{'display': 'none'}"></th>
+      <td mat-cell *matCellDef="let element">
+        {{ element.percentLecture | percent }}
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="percent-homework-title">
+      <th mat-header-cell *matHeaderCellDef [attr.rowSpan]="3"> Практика </th>
+    </ng-container>
+
+    <ng-container matColumnDef="percent-homework-min">
+      <th mat-header-cell *matHeaderCellDef>мин. 60%</th>
+    </ng-container>
+
+    <ng-container matColumnDef="percent-homework">
+      <th mat-header-cell *matHeaderCellDef [ngStyle]="{'display': 'none'}"></th>
+      <td mat-cell *matCellDef="let element">
+        {{ element.percentHomework | percent }}
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="final-exam-title">
+      <th mat-header-cell *matHeaderCellDef>Итоговая аттестация</th>
+    </ng-container>
+
+    <ng-container matColumnDef="final-exam-min">
+      <th mat-header-cell *matHeaderCellDef> мин. 60% </th>
+      <td mat-cell *matCellDef="let element">
+        {{ element.finalExam | percent }}
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="final-exam-start-date">
+      <th mat-header-cell *matHeaderCellDef> {{ this.finalExamStartDate | date: 'dd.MM.yyyy' }} </th>
+    </ng-container>
+
+    <ng-container matColumnDef="final-exam-end-date">
+      <th mat-header-cell *matHeaderCellDef> {{ this.finalExamEndDate | date: 'dd.MM.yyyy' }} </th>
+    </ng-container>
+
+    <ng-container matColumnDef="result-group">
+      <th mat-header-cell *matHeaderCellDef [attr.rowSpan]="4"> Итоговые результаты </th>
+    </ng-container>
+
+    <ng-container matColumnDef="result">
+      <th mat-header-cell *matHeaderCellDef [ngStyle]="{'display': 'none'}"></th>
+      <td mat-cell *matCellDef="let element; let i = index">
+        <select matNativeControl color="primary" [(ngModel)]="element.resut" (change)="changeValue(element, i)">
+          <option value=""> </option>
+          <option *ngFor="let result of ResultEnum | keyvalue" [value]="result.key">{{result.value}}</option>
+        </select>
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="delete-group">
+      <th mat-header-cell *matHeaderCellDef [attr.rowSpan]="4"></th>
+    </ng-container>
+
+    <ng-container matColumnDef="delete">
+      <th mat-header-cell *matHeaderCellDef [ngStyle]="{'display': 'none'}">Удалить</th>
+      <td mat-cell *matCellDef="let element; let i = index">
+        <button mat-icon-button color="primary" (click)="delete(i)">
+          <mat-icon>delete</mat-icon>
+        </button>
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="[
+    'fio-group', 'lesson-group', 'absence-rate', 
+    'homework-group', 'total-count-homework-group', 'total-grades-group',
+    'interview-title', 'interview-total-grades-group', 'max-total-grades-group',
+    'percent-lecture-title', 'percent-homework-title',
+    'final-exam-title', 'result-group', 'delete-group']"></tr>
+    <tr mat-header-row *matHeaderRowDef="fullColumnDefs"></tr>
+    <tr mat-header-row *matHeaderRowDef="startDatesColumnDefs"></tr>
+    <tr mat-header-row *matHeaderRowDef="endDatesColumnDefs"></tr>
+    <tr mat-row *matRowDef="let row; columns: fullColumnDefs"></tr>
+  </table>
+
+  <button mat-icon-button color="primary" (click)="addItem()">
+    <mat-icon>add</mat-icon>
+  </button>

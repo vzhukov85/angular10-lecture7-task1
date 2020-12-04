@@ -1,0 +1,17 @@
+table {
+  width: 100%;
+}
+
+.flex-container {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.button-row {
+  display: table-cell;
+}
+
+.button-row .mat-button-base {
+  margin: 8px 8px 8px 0;
+}
