@@ -1,5 +1,44 @@
-<table mat-table [dataSource]="studentsGrades" class="mat-elevation-z8">
+<mat-card>
+<mat-card-header>
+  <mat-card-title>Журнал успеваемости</mat-card-title>
+</mat-card-header>
+<!--
+<form [formGroup]="studentTable">
+  <mat-table [dataSource]="studentsGrades">
+    <ng-container matColumnDef="fio">
+      <th mat-header-cell *matHeaderCellDef> ФИО </th mat-header-cell>
+      <td mat-cell *matCellDef="let element" [formGroup]="element">
+        <mat-form-field floatLabel="never">
+          <input matInput  
+          type="text" 
+          formControlName = "fio" 
+          style="width: 200px;">
+        </mat-form-field>
+      </td>
+    </ng-container>
 
+    <ng-container *ngFor="let lesson of lessonColumnDefs; let colIndex = index" matColumnDef="{{lesson}}">
+      <th mat-header-cell *matHeaderCellDef> lesson </th mat-header-cell>
+      <td mat-cell *matCellDef="let element" [formGroup]="element">
+         <mat-form-field floatLabel="never">
+          <input matInput  
+          type="number" 
+          [formControl] = "element.get('lectureGrades').controls[colIndex]" 
+          min="0" 
+          max="1" > 
+        </mat-form-field> 
+      </td>
+    </ng-container>
+
+
+    <mat-header-row *matHeaderRowDef="testColumnts"></mat-header-row>
+    <mat-row *matRowDef="let row; columns: testColumnts;"></mat-row>
+  </mat-table>
+  <pre>{{studentTable.value.tableRows[0].lectureGrades | json}}</pre>
+</form>
+-->
+<form [formGroup]="studentTable">
+<table mat-table [dataSource]="studentsGrades" class="mat-elevation-z8">
     <ng-container matColumnDef="lesson-group">
       <th mat-header-cell *matHeaderCellDef [attr.colspan]="subjectColumnTitle.length"> 
         Лекции
@@ -12,51 +51,56 @@
       </th>
     </ng-container>
   
-    <ng-container matColumnDef="fio">
-      <th mat-header-cell *matHeaderCellDef [ngStyle]="{'display': 'none'}"></th>
-      <td mat-cell *matCellDef="let element; let i = index">
-        <input matInput  
-        type="text" 
-        [(ngModel)] = "element.fio" 
-        style="width: 200px;" 
-        (change)="changeValue(element, i)"> 
+    <ng-container matColumnDef="fio" >
+      <th mat-header-cell *matHeaderCellDef [ngStyle]="{'display': 'none'}"> ФИО</th>
+      <td mat-cell *matCellDef="let element; let i = index" [formGroup]="element">
+          <mat-form-field>
+            <input matInput  
+            type="text" 
+            formControlName = "fio" 
+            style="width: 200px;">
+        </mat-form-field>
       </td>
     </ng-container>
 
     <ng-container *ngFor="let lesson of lessonColumnDefs; let colIndex = index" matColumnDef="{{lesson}}">
       <th mat-header-cell *matHeaderCellDef><div class="lesson">{{subjectColumnTitle[colIndex]}}</div></th>
-      <td mat-cell *matCellDef="let element; let i = index">
-        <input matInput  
-        type="number" 
-        [(ngModel)] = "element.lectureGrades[colIndex]" 
-        min="0" 
-        max="1" 
-        (change)="recalcGrades(element, i)"> 
+      <td mat-cell *matCellDef="let element; let i = index" [formGroup]="element">
+        <mat-form-field class="grades">
+          <input matInput  
+          type="number"
+          [formControl] = "element.get('lectureGrades').controls[colIndex]" 
+          min="0" 
+          max="1" 
+          (change)="recalcGrades(element, i)"> 
+        </mat-form-field>
       </td>
     </ng-container>
 
     <ng-container matColumnDef="absence-rate">
-      <th mat-header-cell *matHeaderCellDef>Посещяемость</th>
+      <th mat-header-cell *matHeaderCellDef>Посещя<wbr>емость</th>
     </ng-container>
 
     <ng-container *ngFor="let homework of homeworkColumnDefs; let colIndex = index" matColumnDef="{{homework}}">
       <th mat-header-cell *matHeaderCellDef><div class="lesson">{{subjectColumnTitle[colIndex]}}</div></th>
-      <td mat-cell *matCellDef="let element; let i = index">
+      <td mat-cell *matCellDef="let element; let i = index" [formGroup]="element">
+        <mat-form-field class="grades">
         <input matInput  
         type="number" 
-        [(ngModel)] = "element.homeworkGrades[colIndex]" 
+        [formControl] = "element.get('homeworkGrades').controls[colIndex]" 
         min="0" 
         max="6" 
         (change)="recalcGrades(element, i)"> 
+      </mat-form-field>
       </td>
     </ng-container>
 
     <ng-container matColumnDef="fio-group">
-      <th mat-header-cell *matHeaderCellDef [attr.rowSpan]="4" style="width: 200px;"> ФИО </th>
+      <td th mat-header-cell *matHeaderCellDef [attr.rowSpan]="4" style="width: 200px;"> ФИО </td>
     </ng-container>
 
     <ng-container matColumnDef="absence-rate-start-date">
-      <th mat-header-cell *matHeaderCellDef> {{ this.lessonStartDate | date: 'dd.MM.yyyy' }} </th>
+      <th mat-header-cell th mat-header-cell *matHeaderCellDef> {{ this.lessonStartDate | date: 'dd.MM.yyyy' }} </th>
     </ng-container>
 
     <ng-container matColumnDef="absence-rate-end-date">
@@ -65,8 +109,8 @@
 
     <ng-container matColumnDef="absence-rate-info">
       <th mat-header-cell *matHeaderCellDef> Не менее 6-и </th>
-      <td mat-cell *matCellDef="let element">
-        {{ element.absenceRate }}
+      <td mat-cell *matCellDef="let element; let i = index">
+        {{ studentData[i].absenceRate }}
       </td>
     </ng-container>
 
@@ -88,8 +132,8 @@
 
     <ng-container matColumnDef="total-count-homework">
       <th mat-header-cell *matHeaderCellDef [ngStyle]="{'display': 'none'}"> </th>
-      <td mat-cell *matCellDef="let element">
-        {{ element.totalCountHomeworks  }}
+      <td mat-cell *matCellDef="let element; let i = index">
+        {{ studentData[i].totalCountHomeworks  }}
       </td>
     </ng-container>
 
@@ -99,15 +143,15 @@
 
     <ng-container matColumnDef="total-grades">
       <th mat-header-cell *matHeaderCellDef [ngStyle]="{'display': 'none'}"></th>
-      <td mat-cell *matCellDef="let element">
-        {{ element.totalGrades  }}
+      <td mat-cell *matCellDef="let element; let i = index">
+        {{ studentData[i].totalGrades  }}
       </td>
     </ng-container>
 
     <ng-container matColumnDef="total-grades-group">
       <th mat-header-cell *matHeaderCellDef [attr.rowSpan]="4"> Количество набранный балов за сам. работу </th>
-      <td mat-cell *matCellDef="let element">
-        {{ element.totalGrades  }}
+      <td mat-cell *matCellDef="let element; let i = index">
+        {{ studentData[i].totalGrades  }}
       </td>
     </ng-container>
 
@@ -117,10 +161,10 @@
 
     <ng-container matColumnDef="interview-min-val">
       <th mat-header-cell *matHeaderCellDef>мин 60%</th>
-      <td mat-cell *matCellDef="let element; let i = index">
+      <td mat-cell *matCellDef="let element; let i = index" [formGroup]="element">
         <input matInput  
         type="number" 
-        [(ngModel)] = "element.interview" 
+        formControlName = "interview" 
         min="0" 
         max="100" 
         (change)="recalcGrades(element, i)"> 
@@ -140,17 +184,17 @@
     </ng-container>
 
     <ng-container matColumnDef="interview-total-grades">
-      <th mat-header-cell *matHeaderCellDef [ngStyle]="{'display': 'none'}"> Сумма набранных баллов </th>
-      <td mat-cell *matCellDef="let element">
-        {{ element.interviewTotalGrades  }}
+      <th mat-header-cell *matHeaderCellDef [ngStyle]="{'display': 'none'}"></th>
+      <td mat-cell *matCellDef="let element; let i = index">
+        {{ studentData[i].interviewTotalGrades  }}
       </td>
     </ng-container>
 
-    <ng-container matColumnDef="max-total-grades-group">
-      <th mat-header-cell *matHeaderCellDef [attr.rowSpan]="4"> Максимальная сумма баллов </th>
+    <ng-container matColumnDef="max-total-grades-group" >
+      <th mat-header-cell *matHeaderCellDef [attr.rowSpan]="4"> Максималь<wbr>ная сумма баллов </th>
     </ng-container>
 
-    <ng-container matColumnDef="max-total-grades">
+    <ng-container matColumnDef="max-total-grades" >
       <th mat-header-cell *matHeaderCellDef [ngStyle]="{'display': 'none'}"></th>
       <td mat-cell *matCellDef="let element">
         100
@@ -167,8 +211,8 @@
 
     <ng-container matColumnDef="percent-lecture">
       <th mat-header-cell *matHeaderCellDef [ngStyle]="{'display': 'none'}"></th>
-      <td mat-cell *matCellDef="let element">
-        {{ element.percentLecture | percent }}
+      <td mat-cell *matCellDef="let element; let i = index">
+        {{ studentData[i].percentLecture | percent }}
       </td>
     </ng-container>
 
@@ -182,8 +226,8 @@
 
     <ng-container matColumnDef="percent-homework">
       <th mat-header-cell *matHeaderCellDef [ngStyle]="{'display': 'none'}"></th>
-      <td mat-cell *matCellDef="let element">
-        {{ element.percentHomework | percent }}
+      <td mat-cell *matCellDef="let element; let i = index">
+        {{ studentData[i].percentHomework | percent }}
       </td>
     </ng-container>
 
@@ -193,8 +237,8 @@
 
     <ng-container matColumnDef="final-exam-min">
       <th mat-header-cell *matHeaderCellDef> мин. 60% </th>
-      <td mat-cell *matCellDef="let element">
-        {{ element.finalExam | percent }}
+      <td mat-cell *matCellDef="let element; let i = index">
+        {{ studentData[i].finalExam | percent }}
       </td>
     </ng-container>
 
@@ -212,8 +256,8 @@
 
     <ng-container matColumnDef="result">
       <th mat-header-cell *matHeaderCellDef [ngStyle]="{'display': 'none'}"></th>
-      <td mat-cell *matCellDef="let element; let i = index">
-        <select matNativeControl color="primary" [(ngModel)]="element.resut" (change)="changeValue(element, i)">
+      <td mat-cell *matCellDef="let element; let i = index" [formGroup]="element">
+        <select matNativeControl color="primary" formControlName="result" (change)="changeValue(element, i)" [formGroup]="element">
           <option value=""> </option>
           <option *ngFor="let result of ResultEnum | keyvalue" [value]="result.key">{{result.value}}</option>
         </select>
@@ -243,8 +287,15 @@
     <tr mat-header-row *matHeaderRowDef="startDatesColumnDefs"></tr>
     <tr mat-header-row *matHeaderRowDef="endDatesColumnDefs"></tr>
     <tr mat-row *matRowDef="let row; columns: fullColumnDefs"></tr>
-  </table>
-
-  <button mat-icon-button color="primary" (click)="addItem()">
-    <mat-icon>add</mat-icon>
-  </button>
+</table>
+  <div class="button-block">
+    <button mat-raised-button type="button" (click)="addItem()">
+      <mat-icon>add</mat-icon> Добавить студента
+    </button>
+  </div>
+  <div class="button-block">
+    <button mat-raised-button type="button" color="primary">Сохранить</button>
+    <button mat-raised-button type="button">Отменить</button>
+  </div>
+  </form>
+</mat-card>

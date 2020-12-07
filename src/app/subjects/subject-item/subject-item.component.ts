@@ -1,7 +1,7 @@
 import { Component, Input, OnInit, ViewChild } from '@angular/core';
 import {
   FormBuilder,
-  FormGroup, Validators, FormGroupDirective, NgForm
+  FormGroup, NgForm
 } from '@angular/forms';
 import { DateAdapter } from '@angular/material/core';
 import { SubjectElement, SubjectService } from '../../services/subject.service';
@@ -35,12 +35,10 @@ export class SubjectItemComponent implements OnInit {
   ) {
     this.dateAdapter.setLocale('ru');
     this.updateButtonText();
-    console.log(this.subjectForm);
   }
 
   addElement(): void {
     if (!this.subjectForm.valid) {
-      console.log(this.subjectForm);
       return;
     }
     const element: SubjectElement = {

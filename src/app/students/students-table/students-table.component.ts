@@ -6,6 +6,7 @@ import {
   StudentGradesService,
   StudentsGrades
 } from '../../services/student-grades.service';
+import { FormArray, FormBuilder, FormControl, FormGroup } from '@angular/forms';
 
 export interface DateColumns {
   date: Date;
@@ -19,7 +20,7 @@ export interface DateColumns {
   styleUrls: ['./students-table.component.css'],
 })
 export class StudentsTableComponent implements OnInit, JournalUpdate {
-  studentsGrades: MatTableDataSource<StudentsGrades>;
+  studentsGrades: MatTableDataSource<any>;
   subjects: SubjectElement[];
 
   fullColumnDefs: string[] = [];
@@ -41,15 +42,20 @@ export class StudentsTableComponent implements OnInit, JournalUpdate {
 
   public ResultEnum = Result;
 
+  studentTable: FormGroup;
+  studentData: StudentsGrades[];
+
   constructor(
     private studentsGradesSrv: StudentGradesService,
-    private subjectSrv: SubjectService
+    private subjectSrv: SubjectService,
+    private fb: FormBuilder
   ) {
     this.subjectSrv.setJournalCallback(this);
-    this.updateColumns();
   }
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    this.updateColumns();
+  }
 
   updateColumns(): void {
     this.subjects = this.subjectSrv.subjects;
@@ -62,7 +68,6 @@ export class StudentsTableComponent implements OnInit, JournalUpdate {
     this.endDatesColumnDefs = this.getEndDatesColumnDefs();
 
     this.reloadStudents();
-    console.log('lessons date: ', this.lessonDates);
   }
 
   private fillHeaderDates(): void {
@@ -215,11 +220,40 @@ export class StudentsTableComponent implements OnInit, JournalUpdate {
   }
 
   reloadStudents(): void {
-    this.studentsGrades = new MatTableDataSource(this.studentsGradesSrv.studentsGrades);
+    this.studentData = this.studentsGradesSrv.studentsGrades;
+    /*this.studentsGrades = new MatTableDataSource(this.studentsGradesSrv.studentsGrades);
     this.studentsGrades._updateChangeSubscription();
+    */
+    const studentRows = this.fb.array([]);
+    this.studentData.forEach(element => {
+      studentRows.push(this.initRow(element));
+    });
+    this.studentTable = this.fb.group({
+      tableRows: studentRows
+    });
+    this.studentsGrades = new MatTableDataSource((this.studentTable.get('tableRows') as FormArray).controls);
+  }
+
+  private initRow(data: StudentsGrades): FormGroup {
+    const lectureGrades: FormArray = this.fb.array([]);
+    const homeworkGrades: FormArray = this.fb.array([]);
+    data.lectureGrades.forEach((item) => {
+      lectureGrades.push(this.fb.control(item, []));
+    });
+    data.homeworkGrades.forEach((item) => {
+      homeworkGrades.push(this.fb.control(item, { updateOn: 'change' }));
+    });
+    return this.fb.group({
+      fio: [data.fio, {updateOn: 'change'}],
+      lectureGrades,
+      homeworkGrades,
+      interview: [data.interview, {updateOn: 'change'}],
+      result: [data.result, {updateOn: 'change'}]
+    });
   }
 
   changeValue(element: StudentsGrades, index: number): void {
     this.studentsGradesSrv.updateItem(element, index);
   }
+
 }
