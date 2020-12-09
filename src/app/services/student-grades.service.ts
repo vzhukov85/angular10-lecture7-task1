@@ -1,19 +1,27 @@
 import { Injectable } from '@angular/core';
 import { JournalDaoService } from './journal-dao.service';
 
-export interface StudentsGrades {
-  fio: string;
-  lectureGrades: Array<number>;
+export interface TotalGrades {
   absenceRate: number;
-  homeworkGrades: Array<number>;
   totalCountHomeworks: number;
   totalGrades: number;
-  interview: number;
   interviewTotalGrades: number;
   percentLecture: number;
   percentHomework: number;
   finalExam: number;
+}
+
+export interface JournalGrades {
+  fio: string;
+  lectureGrades: Array<number>;
+  homeworkGrades: Array<number>;
+  interview: number;
   result: Result;
+}
+
+export interface Grades {
+  journalGrades: JournalGrades;
+  totalGrades: TotalGrades;
 }
 
 export enum Result {
@@ -30,11 +38,19 @@ export class StudentGradesService {
   constructor(private journalDaoSrv: JournalDaoService) {
   }
 
-  get studentsGrades(): StudentsGrades[] {
+  get studentsGrades(): Grades[] {
     return this.journalDaoSrv.getAllStudentGrades();
   }
 
-  addStudent(): void {
+  get totalGrades(): TotalGrades[] {
+    return this.journalDaoSrv.getAllTotalGrades();
+  }
+
+  get journalGrades(): JournalGrades[] {
+    return this.journalDaoSrv.getAllJournalGrades();
+  }
+
+  addStudent(): Grades {
 
     const lectureGrades: number[] = [];
     const homeworkGrades: number[] = [];
@@ -44,25 +60,29 @@ export class StudentGradesService {
       homeworkGrades.push(0);
     });
 
-    const student: StudentsGrades = {
+    const journalGrades: JournalGrades = {
       fio: '',
       lectureGrades,
-      absenceRate: 0,
       homeworkGrades,
-      totalCountHomeworks: 0,
-      totalGrades: 0,
       interview: 0,
-      interviewTotalGrades: 0,
-      percentLecture: 0,
-      percentHomework: 0,
-      finalExam: 0,
       result: null,
     };
 
-    this.recalcByElem(student);
-    const grades = this.studentsGrades;
-    grades.push(student);
-    this.journalDaoSrv.saveStudentsGrades(grades);
+    const totalGrades: TotalGrades = {
+      absenceRate: 0,
+      totalCountHomeworks: 0,
+      totalGrades: 0,
+      interviewTotalGrades: 0,
+      percentLecture: 0,
+      percentHomework: 0,
+      finalExam: 0
+    };
+
+    this.recalcByElem(journalGrades, totalGrades);
+    return {
+      journalGrades,
+      totalGrades
+    };
   }
 
   get subjectColumns(): Array<string> {
@@ -73,16 +93,15 @@ export class StudentGradesService {
     return lessonNames;
   }
 
-  recalc(element: StudentsGrades, index: number): void {
-    this.recalcByElem(element);
-    this.journalDaoSrv.updateItem(element, index);
+  recalc(journalGrades: JournalGrades, totalGrades: TotalGrades): void {
+    this.recalcByElem(journalGrades, totalGrades);
   }
 
-  recalcByElem(grades: StudentsGrades): void {
-    this.recalcAbsentRate(grades);
-    this.recalcHomeworks(grades);
-    this.recalcInteview(grades);
-    this.recalcFinal(grades);
+  recalcByElem(journalGrades: JournalGrades, totalGrades: TotalGrades): void {
+    this.recalcAbsentRate(journalGrades, totalGrades);
+    this.recalcHomeworks(journalGrades, totalGrades);
+    this.recalcInteview(journalGrades, totalGrades);
+    this.recalcFinal(totalGrades);
   }
 
   delete(index: number): void {
@@ -91,42 +110,61 @@ export class StudentGradesService {
     this.journalDaoSrv.saveStudentsGrades(grades);
   }
 
-  private recalcAbsentRate(grades: StudentsGrades): void {
-    grades.absenceRate = 0;
-    grades.lectureGrades.forEach((val) => {
+  private recalcAbsentRate(journalGrades: JournalGrades, totalGrades: TotalGrades): void {
+    totalGrades.absenceRate = 0;
+    journalGrades.lectureGrades.forEach((val) => {
       if (val > 0) {
-        ++grades.absenceRate;
+        ++totalGrades.absenceRate;
       }
     });
-    grades.percentLecture = grades.absenceRate / grades.lectureGrades.length;
+    totalGrades.percentLecture = totalGrades.absenceRate / journalGrades.lectureGrades.length;
   }
 
-  private recalcHomeworks(grades: StudentsGrades): void {
-    grades.totalCountHomeworks = 0;
-    grades.totalGrades = 0;
-    grades.homeworkGrades.forEach((val) => {
+  private recalcHomeworks(journalGrades: JournalGrades, totalGrades: TotalGrades): void {
+    totalGrades.totalCountHomeworks = 0;
+    totalGrades.totalGrades = 0;
+    journalGrades.homeworkGrades.forEach((val) => {
       if (val > 0) {
-        ++grades.totalCountHomeworks;
-        grades.totalGrades += val;
+        ++totalGrades.totalCountHomeworks;
+        totalGrades.totalGrades += val;
       }
     });
-    grades.percentHomework = grades.totalCountHomeworks / grades.homeworkGrades.length;
+    totalGrades.percentHomework = totalGrades.totalCountHomeworks / journalGrades.homeworkGrades.length;
   }
 
-  private recalcInteview(grades: StudentsGrades): void {
-    grades.interviewTotalGrades = grades.totalGrades;
-    if (grades.interview >= 60) {
-      grades.interviewTotalGrades *= 2;
+  private recalcInteview(journalGrades: JournalGrades, totalGrades: TotalGrades): void {
+    totalGrades.interviewTotalGrades = totalGrades.totalGrades;
+    if (journalGrades.interview >= 60) {
+      totalGrades.interviewTotalGrades *= 2;
     }
   }
 
-  private recalcFinal(grades: StudentsGrades): void {
-    grades.finalExam = grades.interviewTotalGrades / 100;
+  private recalcFinal(totalGrades: TotalGrades): void {
+    totalGrades.finalExam = totalGrades.interviewTotalGrades / 100;
   }
 
-  updateItem(element: StudentsGrades, index: number): void {
-    this.journalDaoSrv.updateItem(element, index);
+  save(grades: Grades[]) {
+    this.journalDaoSrv.saveStudentsGrades(grades);
   }
 
+  addSubjectFromGrade(index: number): void {
+    const grade = this.journalDaoSrv.getAllStudentGrades();
+    grade.forEach((item) => {
+      item.journalGrades.lectureGrades.splice(index, 0, 0);
+      item.journalGrades.homeworkGrades.splice(index, 0, 0);
+      this.recalc(item.journalGrades, item.totalGrades);
+    });
+    this.journalDaoSrv.saveStudentsGrades(grade);
+  }
+
+  deleteSubjectFromGrade(index: number): void {
+    const grade = this.journalDaoSrv.getAllStudentGrades();
+    grade.forEach((item) => {
+      item.journalGrades.lectureGrades.splice(index, 1);
+      item.journalGrades.homeworkGrades.splice(index, 1);
+      this.recalc(item.journalGrades, item.totalGrades);
+    });
+    this.journalDaoSrv.saveStudentsGrades(grade);
+  }
 
 }

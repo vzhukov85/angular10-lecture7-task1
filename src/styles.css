@@ -1,5 +1,4 @@
 /* You can add global styles to this file, and also import other style files */
-@import "@angular/material/prebuilt-themes/deeppurple-amber.css";
 
 body {
   font-family: Roboto, Arial, sans-serif;
@@ -21,5 +20,5 @@ body {
 }
 
 .mat-form-field.mat-focused .mat-form-field-ripple {
-  background-color: #69f0ae !important;
+  background-color: transparent !important;
 }

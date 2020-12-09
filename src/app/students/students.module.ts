@@ -13,6 +13,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatCardModule } from '@angular/material/card';
+import { MatSelectModule } from '@angular/material/select';
+import { ShareModule } from '../share/share.module';
 
 
 
@@ -32,7 +34,9 @@ import { MatCardModule } from '@angular/material/card';
     MatIconModule,
     MatDividerModule,
     MatPaginatorModule,
-    MatCardModule
+    MatCardModule,
+    MatSelectModule,
+    ShareModule
   ],
   exports: [StudentsTableComponent]
 })

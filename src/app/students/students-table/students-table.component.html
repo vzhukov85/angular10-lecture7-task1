@@ -1,52 +1,19 @@
+<form [formGroup]="studentTable" (ngSubmit)="save()">
 <mat-card>
 <mat-card-header>
   <mat-card-title>Журнал успеваемости</mat-card-title>
 </mat-card-header>
-<!--
-<form [formGroup]="studentTable">
-  <mat-table [dataSource]="studentsGrades">
-    <ng-container matColumnDef="fio">
-      <th mat-header-cell *matHeaderCellDef> ФИО </th mat-header-cell>
-      <td mat-cell *matCellDef="let element" [formGroup]="element">
-        <mat-form-field floatLabel="never">
-          <input matInput  
-          type="text" 
-          formControlName = "fio" 
-          style="width: 200px;">
-        </mat-form-field>
-      </td>
-    </ng-container>
 
-    <ng-container *ngFor="let lesson of lessonColumnDefs; let colIndex = index" matColumnDef="{{lesson}}">
-      <th mat-header-cell *matHeaderCellDef> lesson </th mat-header-cell>
-      <td mat-cell *matCellDef="let element" [formGroup]="element">
-         <mat-form-field floatLabel="never">
-          <input matInput  
-          type="number" 
-          [formControl] = "element.get('lectureGrades').controls[colIndex]" 
-          min="0" 
-          max="1" > 
-        </mat-form-field> 
-      </td>
-    </ng-container>
-
-
-    <mat-header-row *matHeaderRowDef="testColumnts"></mat-header-row>
-    <mat-row *matRowDef="let row; columns: testColumnts;"></mat-row>
-  </mat-table>
-  <pre>{{studentTable.value.tableRows[0].lectureGrades | json}}</pre>
-</form>
--->
-<form [formGroup]="studentTable">
-<table mat-table [dataSource]="studentsGrades" class="mat-elevation-z8">
+<mat-card-content [style.overflow]="'auto'">
+<table mat-table [dataSource]="studentsGrades" class="mat-elevation-z8" [style.overflow]="'auto'" style="margin: 10px;">
     <ng-container matColumnDef="lesson-group">
-      <th mat-header-cell *matHeaderCellDef [attr.colspan]="subjectColumnTitle.length"> 
+      <th mat-header-cell *matHeaderCellDef [attr.colspan]="headers.subjectColumnTitle.length"> 
         Лекции
       </th>
     </ng-container>
 
     <ng-container matColumnDef="homework-group">
-      <th mat-header-cell *matHeaderCellDef [attr.colspan]="subjectColumnTitle.length"> 
+      <th mat-header-cell *matHeaderCellDef [attr.colspan]="headers.subjectColumnTitle.length"> 
         Самостоятельная работа
       </th>
     </ng-container>
@@ -54,25 +21,31 @@
     <ng-container matColumnDef="fio" >
       <th mat-header-cell *matHeaderCellDef [ngStyle]="{'display': 'none'}"> ФИО</th>
       <td mat-cell *matCellDef="let element; let i = index" [formGroup]="element">
-          <mat-form-field>
+          <mat-form-field appearance='outline'>
+            <mat-label>ФИО</mat-label>
             <input matInput  
             type="text" 
             formControlName = "fio" 
-            style="width: 200px;">
+            class="fio"
+            placeholder="ФИО"
+            required/>
         </mat-form-field>
       </td>
     </ng-container>
 
-    <ng-container *ngFor="let lesson of lessonColumnDefs; let colIndex = index" matColumnDef="{{lesson}}">
-      <th mat-header-cell *matHeaderCellDef><div class="lesson">{{subjectColumnTitle[colIndex]}}</div></th>
+    <ng-container *ngFor="let lesson of headers.lessonColumnDefs; let colIndex = index" matColumnDef="{{lesson}}">
+      <th mat-header-cell *matHeaderCellDef><div class="lesson">{{headers.subjectColumnTitle[colIndex]}}</div></th>
       <td mat-cell *matCellDef="let element; let i = index" [formGroup]="element">
-        <mat-form-field class="grades">
+        <mat-form-field class="grades" appearance='outline'>
+          <mat-label>{{colIndex + 1}}</mat-label>
           <input matInput  
           type="number"
           [formControl] = "element.get('lectureGrades').controls[colIndex]" 
           min="0" 
           max="1" 
-          (change)="recalcGrades(element, i)"> 
+          min-value="0"
+          max-value="1"
+          (change)="recalcGrades(element, i)"/> 
         </mat-form-field>
       </td>
     </ng-container>
@@ -81,30 +54,34 @@
       <th mat-header-cell *matHeaderCellDef>Посещя<wbr>емость</th>
     </ng-container>
 
-    <ng-container *ngFor="let homework of homeworkColumnDefs; let colIndex = index" matColumnDef="{{homework}}">
-      <th mat-header-cell *matHeaderCellDef><div class="lesson">{{subjectColumnTitle[colIndex]}}</div></th>
+    <ng-container *ngFor="let homework of headers.homeworkColumnDefs; let colIndex = index" matColumnDef="{{homework}}">
+      <th mat-header-cell *matHeaderCellDef><div class="lesson">{{headers.subjectColumnTitle[colIndex]}}</div></th>
       <td mat-cell *matCellDef="let element; let i = index" [formGroup]="element">
-        <mat-form-field class="grades">
-        <input matInput  
-        type="number" 
-        [formControl] = "element.get('homeworkGrades').controls[colIndex]" 
-        min="0" 
-        max="6" 
-        (change)="recalcGrades(element, i)"> 
+        <mat-form-field class="grades"  appearance='outline'>
+          <mat-label>{{colIndex + 1}}</mat-label>
+          <input matInput  
+          type="number" 
+          [formControl] = "element.get('homeworkGrades').controls[colIndex]" 
+          min="0" 
+          max="6" 
+          min-value="0"
+          max-value="6"
+          placeholder="0"
+          (change)="recalcGrades(element, i)"/> 
       </mat-form-field>
       </td>
     </ng-container>
 
     <ng-container matColumnDef="fio-group">
-      <td th mat-header-cell *matHeaderCellDef [attr.rowSpan]="4" style="width: 200px;"> ФИО </td>
+      <td th mat-header-cell *matHeaderCellDef [attr.rowSpan]="4" class="fio"> ФИО </td>
     </ng-container>
 
     <ng-container matColumnDef="absence-rate-start-date">
-      <th mat-header-cell th mat-header-cell *matHeaderCellDef> {{ this.lessonStartDate | date: 'dd.MM.yyyy' }} </th>
+      <th mat-header-cell th mat-header-cell *matHeaderCellDef> {{ headers.lessonStartDate | date: 'dd.MM.yyyy' }} </th>
     </ng-container>
 
     <ng-container matColumnDef="absence-rate-end-date">
-      <th mat-header-cell *matHeaderCellDef> {{ this.lessonEndDate | date: 'dd.MM.yyyy' }} </th>
+      <th mat-header-cell *matHeaderCellDef> {{ headers.lessonEndDate | date: 'dd.MM.yyyy' }} </th>
     </ng-container>
 
     <ng-container matColumnDef="absence-rate-info">
@@ -114,19 +91,19 @@
       </td>
     </ng-container>
 
-    <ng-container *ngFor="let lesson of lessonDates; let colIndex = index" matColumnDef="{{'start-' + lesson.colDef}}">
+    <ng-container *ngFor="let lesson of headers.lessonDates; let colIndex = index" matColumnDef="{{'start-' + lesson.colDef}}">
       <th mat-header-cell *matHeaderCellDef [attr.colSpan]="lesson.count">{{lesson.date | date: 'dd.MM.yyyy' }}</th>
     </ng-container>
 
-    <ng-container *ngFor="let lesson of lessonDates; let colIndex = index" matColumnDef="{{'end-' + lesson.colDef}}">
+    <ng-container *ngFor="let lesson of headers.lessonDates; let colIndex = index" matColumnDef="{{'end-' + lesson.colDef}}">
       <th mat-header-cell *matHeaderCellDef [attr.colSpan]="lesson.count">{{lesson.date | date: 'dd.MM.yyyy' }}</th>
     </ng-container>
 
-    <ng-container *ngFor="let homework of startHomeworkDates; let colIndex = index" matColumnDef="{{homework.colDef}}">
+    <ng-container *ngFor="let homework of headers.startHomeworkDates; let colIndex = index" matColumnDef="{{homework.colDef}}">
       <th mat-header-cell *matHeaderCellDef [attr.colSpan]="homework.count">{{homework.date | date: 'dd.MM.yyyy' }}</th>
     </ng-container>
 
-    <ng-container *ngFor="let homework of endHomeworkDates; let colIndex = index" matColumnDef="{{homework.colDef}}">
+    <ng-container *ngFor="let homework of headers.endHomeworkDates; let colIndex = index" matColumnDef="{{homework.colDef}}">
       <th mat-header-cell *matHeaderCellDef [attr.colSpan]="homework.count">{{homework.date | date: 'dd.MM.yyyy' }}</th>
     </ng-container>
 
@@ -162,21 +139,26 @@
     <ng-container matColumnDef="interview-min-val">
       <th mat-header-cell *matHeaderCellDef>мин 60%</th>
       <td mat-cell *matCellDef="let element; let i = index" [formGroup]="element">
-        <input matInput  
-        type="number" 
-        formControlName = "interview" 
-        min="0" 
-        max="100" 
-        (change)="recalcGrades(element, i)"> 
+        <mat-form-field appearance='outline' class="interview">
+          <mat-label>Собес.</mat-label>
+          <input matInput  
+          type="number" 
+          formControlName = "interview" 
+          min="0" 
+          max="100" 
+          min-value="0"
+          max-value="100"
+          (change)="recalcGrades(element, i)"> 
+        </mat-form-field>
       </td>
     </ng-container>
 
     <ng-container matColumnDef="interview-start-date">
-      <th mat-header-cell *matHeaderCellDef>{{ this.interviewStartDate | date: 'dd.MM.yyyy' }}</th>
+      <th mat-header-cell *matHeaderCellDef>{{ headers.interviewStartDate | date: 'dd.MM.yyyy' }}</th>
     </ng-container>
 
     <ng-container matColumnDef="interview-end-date">
-      <th mat-header-cell *matHeaderCellDef>{{ this.interviewEndDate | date: 'dd.MM.yyyy' }}</th>
+      <th mat-header-cell *matHeaderCellDef>{{ headers.interviewEndDate | date: 'dd.MM.yyyy' }}</th>
     </ng-container>
 
     <ng-container matColumnDef="interview-total-grades-group">
@@ -243,11 +225,11 @@
     </ng-container>
 
     <ng-container matColumnDef="final-exam-start-date">
-      <th mat-header-cell *matHeaderCellDef> {{ this.finalExamStartDate | date: 'dd.MM.yyyy' }} </th>
+      <th mat-header-cell *matHeaderCellDef> {{ headers.finalExamStartDate | date: 'dd.MM.yyyy' }} </th>
     </ng-container>
 
     <ng-container matColumnDef="final-exam-end-date">
-      <th mat-header-cell *matHeaderCellDef> {{ this.finalExamEndDate | date: 'dd.MM.yyyy' }} </th>
+      <th mat-header-cell *matHeaderCellDef> {{ headers.finalExamEndDate | date: 'dd.MM.yyyy' }} </th>
     </ng-container>
 
     <ng-container matColumnDef="result-group">
@@ -257,10 +239,13 @@
     <ng-container matColumnDef="result">
       <th mat-header-cell *matHeaderCellDef [ngStyle]="{'display': 'none'}"></th>
       <td mat-cell *matCellDef="let element; let i = index" [formGroup]="element">
-        <select matNativeControl color="primary" formControlName="result" (change)="changeValue(element, i)" [formGroup]="element">
-          <option value=""> </option>
-          <option *ngFor="let result of ResultEnum | keyvalue" [value]="result.key">{{result.value}}</option>
-        </select>
+        <mat-form-field appearance='outline'>
+          <mat-select formControlName="result" [formGroup]="element"
+          placeholder="Результат" >
+            <mat-option value=""> </mat-option>
+            <mat-option *ngFor="let result of ResultEnum | keyvalue" [value]="result.key">{{result.value}}</mat-option>
+          </mat-select>
+        </mat-form-field>
       </td>
     </ng-container>
 
@@ -277,25 +262,22 @@
       </td>
     </ng-container>
 
-    <tr mat-header-row *matHeaderRowDef="[
-    'fio-group', 'lesson-group', 'absence-rate', 
-    'homework-group', 'total-count-homework-group', 'total-grades-group',
-    'interview-title', 'interview-total-grades-group', 'max-total-grades-group',
-    'percent-lecture-title', 'percent-homework-title',
-    'final-exam-title', 'result-group', 'delete-group']"></tr>
-    <tr mat-header-row *matHeaderRowDef="fullColumnDefs"></tr>
-    <tr mat-header-row *matHeaderRowDef="startDatesColumnDefs"></tr>
-    <tr mat-header-row *matHeaderRowDef="endDatesColumnDefs"></tr>
-    <tr mat-row *matRowDef="let row; columns: fullColumnDefs"></tr>
+    <tr mat-header-row *matHeaderRowDef="headers.mainColumnsDefs"></tr>
+    <tr mat-header-row *matHeaderRowDef="headers.fullColumnDefs"></tr>
+    <tr mat-header-row *matHeaderRowDef="headers.startDatesColumnDefs"></tr>
+    <tr mat-header-row *matHeaderRowDef="headers.endDatesColumnDefs"></tr>
+    <tr mat-row *matRowDef="let row; columns: headers.fullColumnDefs"></tr>
 </table>
+</mat-card-content>
+</mat-card>
+
   <div class="button-block">
     <button mat-raised-button type="button" (click)="addItem()">
       <mat-icon>add</mat-icon> Добавить студента
     </button>
   </div>
   <div class="button-block">
-    <button mat-raised-button type="button" color="primary">Сохранить</button>
-    <button mat-raised-button type="button">Отменить</button>
+    <button mat-raised-button type="submit" color="primary">Сохранить</button>
+    <button mat-raised-button type="button" (click)="cancel()">Отменить</button>
   </div>
-  </form>
-</mat-card>
+</form>

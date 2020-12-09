@@ -6,7 +6,11 @@ td.mat-cell {
 }
 
 mat-form-field.grades {
-  width: 30px;
+  width: 50px;
+}
+
+mat-form-field.interview {
+  width: 80px;
 }
 
 .lesson {
@@ -17,4 +21,8 @@ mat-form-field.grades {
 .button-block {
   margin-bottom: 12px;
   margin-top: 12px;
+}
+
+.fio {
+  width: 200px;
 }

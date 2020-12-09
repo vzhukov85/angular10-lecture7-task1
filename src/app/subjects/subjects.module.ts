@@ -15,14 +15,13 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatCardModule } from '@angular/material/card';
 import { DateValidatorDirective } from './date-validator.directive';
-import { MinValidatorDirective } from './min-validator.directive';
+import { ShareModule } from '../share/share.module';
 
 @NgModule({
   declarations: [
     SubjectTableComponent,
     SubjectItemComponent,
     DateValidatorDirective,
-    MinValidatorDirective,
   ],
   imports: [
     CommonModule,
@@ -39,12 +38,12 @@ import { MinValidatorDirective } from './min-validator.directive';
     MatDividerModule,
     MatPaginatorModule,
     MatCardModule,
+    ShareModule
   ],
   exports: [
     SubjectTableComponent,
     SubjectItemComponent,
     DateValidatorDirective,
-    MinValidatorDirective,
   ],
 })
 export class SubjectsModule {}

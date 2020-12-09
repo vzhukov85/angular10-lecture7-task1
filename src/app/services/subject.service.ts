@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { JournalDaoService } from './journal-dao.service';
+import { StudentGradesService } from './student-grades.service';
 
 export interface SubjectElement {
   position: number;
@@ -23,7 +24,8 @@ export interface JournalUpdate {
 })
 export class SubjectService {
   private journalCallback: JournalUpdate;
-  constructor(private journalDaoSrv: JournalDaoService) {
+  constructor(private journalDaoSrv: JournalDaoService, 
+    private studentSrv: StudentGradesService) {
   }
 
   addElement(element: SubjectElement): void {
@@ -31,7 +33,7 @@ export class SubjectService {
     this.updateSubjects(subjects, element);
     this.sortSubjects(subjects);
     const pos = this.findSubjIndex(subjects, element);
-    this.journalDaoSrv.addSubjectFromGrade(pos);
+    this.studentSrv.addSubjectFromGrade(pos);
     this.saveSubjects(subjects);
   }
 
@@ -47,7 +49,6 @@ export class SubjectService {
   private saveSubjects(subjects: SubjectElement[]): void {
     this.journalDaoSrv.saveSubjects(subjects);
     if (this.journalCallback != null) {
-      console.log('callback', this.subjects);
       this.journalCallback.updateColumns();
     }
   }
@@ -90,8 +91,7 @@ export class SubjectService {
     const filteredSubjects = subjects.filter((item) => {
       return item.position !== element.position;
     });
-    console.log(filteredSubjects);
-    this.journalDaoSrv.deleteSubjectFromGrade(pos);
+    this.studentSrv.deleteSubjectFromGrade(pos);
     this.saveSubjects(filteredSubjects);
   }
 

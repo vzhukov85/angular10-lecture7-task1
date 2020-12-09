@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { StudentsGrades } from './student-grades.service';
+import { Grades, JournalGrades, TotalGrades } from './student-grades.service';
 import { SubjectElement } from './subject.service';
 
 @Injectable({
@@ -7,10 +7,13 @@ import { SubjectElement } from './subject.service';
 })
 export class JournalDaoService {
 
+  subject_key = 'subjects';
+  grades_key = 'grades';
+
   constructor() {}
 
   getAllSubjects(): SubjectElement[] {
-    let obj: SubjectElement[] = JSON.parse(localStorage.getItem('subjects'));
+    let obj: SubjectElement[] = JSON.parse(localStorage.getItem(this.subject_key));
     if (!obj) {
       obj = [];
     }
@@ -21,42 +24,36 @@ export class JournalDaoService {
   }
 
   saveSubjects(subjects: SubjectElement[]): void {
-    localStorage.setItem('subjects', JSON.stringify(subjects));
+    localStorage.setItem(this.subject_key, JSON.stringify(subjects));
   }
 
-  getAllStudentGrades(): StudentsGrades[] {
-    let obj: StudentsGrades[] = JSON.parse(localStorage.getItem('studentsGrades'));
+  getAllStudentGrades(): Grades[] {
+    let obj: Grades[] = JSON.parse(localStorage.getItem(this.grades_key));
     if (!obj) {
       obj = [];
     }
     return obj;
   }
 
-  saveStudentsGrades(studentsGrades: StudentsGrades[]): void {
-    localStorage.setItem('studentsGrades', JSON.stringify(studentsGrades));
+  getAllTotalGrades(): TotalGrades[] {
+    const obj: Grades[] = this.getAllStudentGrades();
+    const data: TotalGrades[] = [];
+    obj.forEach((item) => {
+      data.push(item.totalGrades);
+    })
+    return data;
   }
 
-  addSubjectFromGrade(index: number): void {
-    const grade = this.getAllStudentGrades();
-    grade.forEach((item) => {
-      item.lectureGrades.splice(index, 0, 0);
-      item.homeworkGrades.splice(index, 0, 0);
-    });
-    this.saveStudentsGrades(grade);
+  getAllJournalGrades(): JournalGrades[] {
+    const obj: Grades[] = this.getAllStudentGrades();
+    const data: JournalGrades[] = [];
+    obj.forEach((item) => {
+      data.push(item.journalGrades);
+    })
+    return data;
   }
 
-  deleteSubjectFromGrade(index: number): void {
-    const grade = this.getAllStudentGrades();
-    grade.forEach((item) => {
-      item.lectureGrades.splice(index, 1);
-      item.homeworkGrades.splice(index, 1);
-    });
-    this.saveStudentsGrades(grade);
-  }
-
-  updateItem(element: StudentsGrades, index: number): void {
-    const grades = this.getAllStudentGrades();
-    grades[index] = element;
-    this.saveStudentsGrades(grades);
+  saveStudentsGrades(grades: Grades[]): void {
+    localStorage.setItem(this.grades_key, JSON.stringify(grades));
   }
 }
