@@ -17,7 +17,7 @@ import {
 import {
   JournalHeader,
   JournalHeaderService,
-} from 'src/app/services/journal-header.service';
+} from '../../services/journal-header.service';
 
 export interface DateColumns {
   date: Date;
